@@ -33,8 +33,4 @@ Here’s a tech stack that’s both beginner-friendly and powerful:
   - [Amadeus](https://developers.amadeus.com/) for flights, hotels, etc.
   - [TripAdvisor API (via RapidAPI)](https://rapidapi.com/) for places and activities
   - [Google Places API](https://developers.google.com/maps/documentation/places/web-service/overview)
-
-### 🗃️ Database (optional for storing user trips)
-- **MongoDB** – Flexible NoSQL database
-- OR
-- **Firebase Firestore** – Easy integration for beginners
+  
