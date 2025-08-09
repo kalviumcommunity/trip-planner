@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import axios from 'axios'
 import { INTEREST_OPTIONS } from '../constants/interests'
 
 const TripForm = ({ onSubmit }) => {
@@ -8,6 +9,8 @@ const TripForm = ({ onSubmit }) => {
     endDate: '',
     interests: []
   })
+  const [isLoading, setIsLoading] = useState(false)
+  const [backendMessage, setBackendMessage] = useState('')
 
   const interestOptions = INTEREST_OPTIONS
 
@@ -28,9 +31,42 @@ const TripForm = ({ onSubmit }) => {
     }))
   }
 
-  const handleSubmit = (e) => {
+  const calculateDays = (startDate, endDate) => {
+    const start = new Date(startDate)
+    const end = new Date(endDate)
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) return 1
+    const diffMs = end.setHours(0,0,0,0) - start.setHours(0,0,0,0)
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24)) + 1
+    return Math.max(1, diffDays)
+  }
+
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    onSubmit(formData)
+    setIsLoading(true)
+    setBackendMessage('')
+
+    try {
+      const days = calculateDays(formData.startDate, formData.endDate)
+      const interestLabels = formData.interests
+        .map(id => interestOptions.find(opt => opt.id === id)?.label)
+        .filter(Boolean)
+
+      const response = await axios.post('http://localhost:5000/generate-plan', {
+        destination: formData.destination,
+        days,
+        interests: interestLabels
+      })
+
+      const plan = response?.data?.plan || ''
+      setBackendMessage('Plan generated successfully!')
+
+      onSubmit({ ...formData, days, plan })
+    } catch (error) {
+      console.error('Error calling backend:', error)
+      setBackendMessage('Error connecting to backend. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -111,13 +147,29 @@ const TripForm = ({ onSubmit }) => {
           </div>
         </div>
 
+        {/* Backend Message */}
+        {backendMessage && (
+          <div className={`p-4 rounded-lg ${
+            backendMessage.includes('Error') 
+              ? 'bg-red-50 text-red-700 border border-red-200' 
+              : 'bg-green-50 text-green-700 border border-green-200'
+          }`}>
+            <p className="font-medium">Backend: {backendMessage}</p>
+          </div>
+        )}
+
         {/* Submit Button */}
         <div className="pt-4">
           <button
             type="submit"
-            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold py-4 px-6 rounded-lg hover:from-blue-700 hover:to-indigo-700 transform hover:scale-105 transition-all duration-200 shadow-lg"
+            disabled={isLoading}
+            className={`w-full font-semibold py-4 px-6 rounded-lg transition-all duration-200 shadow-lg ${
+              isLoading
+                ? 'bg-gray-400 cursor-not-allowed'
+                : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 transform hover:scale-105'
+            }`}
           >
-            🚀 Generate Trip Plan
+            {isLoading ? '🔄 Generating Plan...' : '🚀 Generate Trip Plan'}
           </button>
         </div>
       </form>
