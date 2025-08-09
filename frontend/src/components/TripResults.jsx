@@ -28,6 +28,9 @@ const TripResults = ({ tripData, onEdit, onSave }) => {
             <p className="text-lg text-green-900">
               {tripData.startDate} to {tripData.endDate}
             </p>
+            {tripData.days && (
+              <p className="text-sm text-green-800 mt-1">Total days: {tripData.days}</p>
+            )}
           </div>
         </div>
 
@@ -50,6 +53,16 @@ const TripResults = ({ tripData, onEdit, onSave }) => {
           )}
         </div>
       </div>
+
+      {/* AI Plan */}
+      {tripData.plan && (
+        <div className="mt-8 bg-amber-50 border border-amber-200 rounded-lg p-6">
+          <h3 className="font-semibold text-amber-900 mb-3">🤖 AI-Generated Itinerary</h3>
+          <div className="whitespace-pre-wrap text-amber-900 leading-relaxed">
+            {tripData.plan}
+          </div>
+        </div>
+      )}
 
       {/* Action Buttons */}
       <div className="mt-8 flex flex-col sm:flex-row gap-4">
