@@ -1,12 +1,44 @@
-# React + Vite
+# Trip Planner (AI)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Project Overview
 
-Currently, two official plugins are available:
+Trip Planner is a modern, responsive web application designed to help users plan their travel itineraries with ease. The app allows users to input their destination, select travel dates, and choose interests, then generates a summary of their trip plan.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
 
-## Expanding the ESLint configuration
+- **Destination Input:**  
+  Users can enter their desired travel destination using a clear, labeled text field.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- **Date Range Selector:**  
+  Select both start and end dates for the trip using an intuitive date picker.
+
+- **Interests Selection:**  
+  Choose from multiple travel interests (e.g., culture, food, adventure, shopping, nature) using checkboxes or a multi-select list.
+
+- **Trip Plan Generation:**  
+  After submitting the form, the entered data is displayed in a well-formatted card below the form.
+
+- **Responsive Design:**  
+  The layout is mobile-friendly, centered, and styled for a clean, modern look.
+
+## How It Works
+
+1. Fill in your destination.
+2. Select your travel dates.
+3. Pick your interests.
+4. Click "Generate Trip Plan" to view your trip summary.
+
+## Getting Started
+
+1. Clone the repository.
+2. Install dependencies:  
+   `npm install`
+3. Start the development server:  
+   `npm run dev`
+
+## Technologies Used
+
+- React
+- CSS (for styling)
+- Vite (for fast development)
+
