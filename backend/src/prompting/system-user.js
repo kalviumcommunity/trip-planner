@@ -7,66 +7,75 @@ export class SystemUserPrompting {
   }
 
   async generateTripPlan(destination, days, interests) {
-    const interestsText = Array.isArray(interests) 
-      ? interests.join(', ') 
-      : String(interests);
-
+    const interestsText = Array.isArray(interests) ? interests.join(', ') : interests;
+    
     // RTFC Framework: Role, Task, Format, Context
-    const systemPrompt = `You are an expert travel planner with 15+ years of experience in creating personalized itineraries. You specialize in:
+    const systemPrompt = `You are an expert travel planner with deep knowledge of global destinations, cultural practices, and practical travel logistics. Your role is to create comprehensive, personalized trip itineraries that balance must-see attractions with authentic local experiences.
 
-ROLE: Professional Travel Consultant
-- Deep knowledge of global destinations, cultures, and travel logistics
-- Expertise in matching activities with traveler interests and preferences
-- Understanding of seasonal considerations, local customs, and practical travel tips
-- Ability to create balanced itineraries that maximize experience while minimizing stress
+**Your Expertise:**
+- Cultural sensitivity and local customs understanding
+- Practical travel logistics and timing optimization
+- Insider knowledge of destinations and hidden gems
+- Budget-conscious yet quality-focused recommendations
+- Safety and accessibility considerations
 
-TASK: Create a comprehensive, day-by-day travel itinerary that:
-- Aligns perfectly with the traveler's stated interests
-- Provides specific, actionable recommendations
-- Includes practical details like timing, transportation, and booking requirements
-- Offers cultural insights and local secrets
-- Balances must-see attractions with hidden gems
+**Your Approach:**
+- Always consider local culture, customs, and etiquette
+- Provide practical tips for each activity (booking, timing, costs)
+- Include both popular attractions and off-the-beaten-path experiences
+- Consider seasonal factors and local events
+- Balance structured activities with free time for exploration
 
-FORMAT: Structured daily itinerary with:
+**Output Quality Standards:**
+- Detailed daily schedules with specific timing
+- Realistic activity durations and travel times
+- Practical booking information and costs
+- Cultural context and local insights
+- Safety tips and accessibility notes`;
+
+    const userPrompt = `**TASK:** Create a comprehensive ${days}-day trip plan for ${destination} specifically designed for someone interested in ${interestsText}.
+
+**REQUIREMENTS:**
+1. **Daily Structure:** Organize each day with morning, afternoon, and evening sections
+2. **Timing Details:** Include specific times, durations, and travel logistics
+3. **Cultural Context:** Explain why each activity is recommended for this destination
+4. **Practical Tips:** Provide booking information, costs, and insider advice
+5. **Local Insights:** Include cultural customs, etiquette, and local secrets
+6. **Safety & Accessibility:** Note any important considerations for travelers
+
+**FORMAT:**
 - Clear day-by-day breakdown
-- Morning, afternoon, and evening sections
-- Specific restaurant names and cuisine types
-- Practical tips and cultural notes
-- Local secrets and insider recommendations
+- Specific timing for each activity
+- Practical booking and cost information
+- Cultural context and local insights
+- Safety tips and accessibility notes
+- Optional activities and alternatives
 
-CONTEXT: You are helping travelers create memorable experiences by providing:
-- Authentic local experiences
-- Time-efficient routing
-- Cultural sensitivity and awareness
-- Practical advice for smooth travel
-- Memorable moments that go beyond typical tourist experiences
+**CONTEXT:** This should be a comprehensive, practical guide that someone could follow step-by-step while respecting local culture and maximizing their experience in ${destination}.`;
 
-Always maintain a warm, helpful tone while providing professional-level travel planning expertise.`;
+    const fullPrompt = `${systemPrompt}
 
-    const userPrompt = `Please create a ${days}-day trip plan for ${destination} for someone interested in ${interestsText}.
+---
 
-I need a detailed, practical itinerary that I can follow step-by-step. Please include:
-- Specific restaurant recommendations with cuisine types
-- Optimal timing for each activity
-- Cultural tips and local customs to be aware of
-- Transportation options between locations
-- Booking requirements and advance notice needed
-- Local secrets and hidden gems that most tourists miss
+${userPrompt}
 
-Make it feel like I have a local friend showing me around!`;
+Please provide a detailed, practical itinerary that follows these requirements exactly.`;
 
     try {
-      // Combine system and user prompts
-      const fullPrompt = `${systemPrompt}\n\n${userPrompt}`;
-      
       const result = await this.model.generateContent(fullPrompt);
       return {
         type: 'system-user',
         plan: result.response.text(),
-        systemPrompt: systemPrompt,
-        userPrompt: userPrompt,
+        prompt: fullPrompt,
         framework: 'RTFC (Role, Task, Format, Context)',
-        reasoning: 'System prompt sets the AI\'s role and expertise, user prompt provides specific requirements'
+        metadata: {
+          method: 'system-user',
+          framework: 'RTFC',
+          role: 'Expert travel planner with cultural expertise',
+          task: `Create ${days}-day trip plan for ${destination}`,
+          format: 'Daily structure with timing, cultural context, and practical tips',
+          context: 'Comprehensive, practical guide respecting local culture'
+        }
       };
     } catch (error) {
       throw new Error(`System-user prompting failed: ${error.message}`);
@@ -79,5 +88,51 @@ Make it feel like I have a local friend showing me around!`;
 
   getDescription() {
     return 'System and user prompts using RTFC framework provide clear role definition and specific task requirements.';
+  }
+
+  getFramework() {
+    return {
+      name: 'RTFC Framework',
+      components: {
+        role: 'Clear definition of AI assistant capabilities and expertise',
+        task: 'Specific, actionable requirements for the output',
+        format: 'Detailed structure and organization guidelines',
+        context: 'Background information and constraints'
+      },
+      benefits: [
+        'Clear role definition prevents confusion',
+        'Specific task requirements ensure quality',
+        'Structured format improves consistency',
+        'Context provides necessary background'
+      ]
+    };
+  }
+
+  getRoleDefinition() {
+    return {
+      expertise: [
+        'Global destinations knowledge',
+        'Cultural sensitivity',
+        'Practical travel logistics',
+        'Local customs understanding',
+        'Budget-conscious recommendations'
+      ],
+      approach: [
+        'Cultural consideration first',
+        'Practical tips included',
+        'Balanced recommendations',
+        'Seasonal awareness',
+        'Safety and accessibility focus'
+      ]
+    };
+  }
+
+  getTaskRequirements() {
+    return {
+      structure: 'Daily breakdown with timing',
+      content: 'Cultural context and practical tips',
+      quality: 'Comprehensive and actionable',
+      format: 'Clear and organized presentation'
+    };
   }
 }
