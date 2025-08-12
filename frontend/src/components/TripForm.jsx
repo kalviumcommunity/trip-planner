@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { INTEREST_OPTIONS } from '../constants/interests';
+import AISettings from './AISettings';
 
 const TripForm = ({ onSubmit }) => {
   const [destination, setDestination] = useState('');
@@ -8,6 +9,13 @@ const TripForm = ({ onSubmit }) => {
   const [interests, setInterests] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [aiSettings, setAiSettings] = useState({
+    temperature: 0.7,
+    topK: 40,
+    topP: 0.8,
+    maxTokens: 1000,
+    promptingMethod: 'one-shot'
+  });
 
   const toggleInterest = (id) => {
     setInterests((prev) =>
@@ -43,6 +51,7 @@ const TripForm = ({ onSubmit }) => {
           destination,
           days,
           interests,
+          aiSettings, // Include AI settings in the request
         }),
       });
 
@@ -137,6 +146,9 @@ const TripForm = ({ onSubmit }) => {
           ))}
         </div>
       </div>
+
+      {/* AI Settings */}
+      <AISettings settings={aiSettings} onSettingsChange={setAiSettings} />
 
       {/* Error */}
       {error && <p className="text-red-600 text-sm">{error}</p>}
