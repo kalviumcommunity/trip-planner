@@ -1,6 +1,10 @@
-import { INTEREST_OPTIONS } from '../constants/interests'
+import React, { useState } from 'react';
+import { INTEREST_OPTIONS } from '../constants/interests';
+import StructuredTripDisplay from './StructuredTripDisplay';
+import AIFunctionCaller from './AIFunctionCaller';
 
 const TripResults = ({ tripData, onEdit, onSave }) => {
+  const [showAIFunctions, setShowAIFunctions] = useState(false);
   const interestOptions = INTEREST_OPTIONS
 
   const getInterestLabels = (interestIds) => {
@@ -54,15 +58,50 @@ const TripResults = ({ tripData, onEdit, onSave }) => {
         </div>
       </div>
 
-      {/* AI Plan */}
+      {/* AI Plan Display */}
       {tripData.plan && (
-        <div className="mt-8 bg-amber-50 border border-amber-200 rounded-lg p-6">
-          <h3 className="font-semibold text-amber-900 mb-3">🤖 AI-Generated Itinerary</h3>
-          <div className="whitespace-pre-wrap text-amber-900 leading-relaxed">
-            {tripData.plan}
-          </div>
+        <div className="mt-8">
+          {/* Check if it's structured output (JSON) or text */}
+          {typeof tripData.plan === 'object' && tripData.plan.tripPlan ? (
+            // Structured JSON output
+            <div>
+              <h3 className="font-semibold text-gray-800 mb-4 text-xl">🤖 AI-Generated Structured Itinerary</h3>
+              <StructuredTripDisplay tripData={tripData} />
+            </div>
+          ) : (
+            // Regular text output
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-6">
+              <h3 className="font-semibold text-amber-900 mb-3">🤖 AI-Generated Itinerary</h3>
+              <div className="whitespace-pre-wrap text-amber-900 leading-relaxed">
+                {tripData.plan}
+              </div>
+            </div>
+          )}
         </div>
       )}
+
+      {/* AI Function Calling Section */}
+      <div className="mt-8">
+        <div className="text-center mb-4">
+          <button
+            onClick={() => setShowAIFunctions(!showAIFunctions)}
+            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200"
+          >
+            {showAIFunctions ? '🔽 Hide' : '🚀 Show'} AI Functions
+          </button>
+        </div>
+        
+        {showAIFunctions && (
+          <AIFunctionCaller 
+            tripData={tripData}
+            onFunctionCall={async (functionName, parameters) => {
+              console.log('AI Function called:', functionName, parameters);
+              // Here you would implement the actual function calling logic
+              alert(`AI Function "${functionName}" executed with parameters: ${JSON.stringify(parameters, null, 2)}`);
+            }}
+          />
+        )}
+      </div>
 
       {/* Action Buttons */}
       <div className="mt-8 flex flex-col sm:flex-row gap-4">
