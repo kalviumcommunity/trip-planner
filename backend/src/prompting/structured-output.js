@@ -3,13 +3,15 @@
 
 export class StructuredOutputPrompting {
   constructor(aiModel) {
-    this.model = aiModel;
+    this.model=aiModel;
   }
 
   async generateTripPlan(destination, days, interests) {
     const interestsText = Array.isArray(interests) 
       ? interests.join(', ') 
       : String(interests);
+
+
 
     const prompt = `Create a ${days}-day trip plan for ${destination} for someone interested in ${interestsText}.
 
@@ -18,11 +20,11 @@ IMPORTANT: You must respond with ONLY valid JSON in the exact format specified b
 Required JSON Schema:
 {
   "tripPlan": {
-    "destination": "${destination}",
+    "destination":"${destination}",
     "duration": ${days},
     "interests": "${interestsText}",
     "summary": "Brief overview of the trip",
-    "days": [
+    "days":[
       {
         "day": 1,
         "theme": "Theme for this day",
