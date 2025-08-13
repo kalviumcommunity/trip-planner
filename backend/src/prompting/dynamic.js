@@ -6,14 +6,14 @@ export class DynamicPrompting {
     this.model = aiModel;
   }
 
-  async generateTripPlan(destination, days, interests, budget = 'medium', season = 'any', groupSize = 1) {
+  async generateTripPlan (destination, days, interests, budget = 'medium', season = 'any', groupSize = 1) {
     const interestsText = Array.isArray(interests) 
       ? interests.join(', ') 
       : String(interests);
 
     // Dynamic prompt construction based on parameters
-    const budgetContext = this.getBudgetContext(budget);
-    const seasonContext = this.getSeasonContext(season);
+    const budgetContext =this.getBudgetContext(budget);
+    const seasonContext =this.getSeasonContext(season);
     const groupContext = this.getGroupContext(groupSize);
     const durationContext = this.getDurationContext(days);
 
@@ -28,8 +28,8 @@ ${groupContext}
 ${durationContext}
 
 **Special Considerations:**
-- Adapt activities based on the above factors
-- Include budget-friendly alternatives if applicable
+- Adapt the activities based on the above factors
+- Also include budget-friendly alternatives if applicable
 - Consider seasonal availability and weather
 - Adjust recommendations for group dynamics
 - Provide flexible options for different preferences
