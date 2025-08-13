@@ -283,23 +283,10 @@ Check server status and AI model information.
 - [Text Embeddings Guide](https://platform.openai.com/docs/guides/embeddings)
 - [Vector Databases](https://www.pinecone.io/learn/vector-database/)
 
-## 📄 **License**
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ## 🙏 **Acknowledgments**
 
 - Google Gemini AI for providing the AI capabilities
 - React and Tailwind CSS communities for excellent tooling
 - Open source contributors who inspired this project
-
-## 📞 **Support**
-
-For questions, issues, or contributions:
-- Create an issue on GitHub
-- Submit a pull request
-- Contact the development team
-
----
 
 **Built with ❤️ using modern AI technologies and best practices**
