@@ -105,11 +105,45 @@ const AIFunctionCaller = ({ tripData, onFunctionCall }) => {
         ...(tripData?.days && { duration: tripData.days })
       };
 
-      await onFunctionCall(selectedFunction, enhancedParams);
+      // Handle specific functions that need backend calls
+      if (selectedFunction === 'findSimilarDestinations') {
+        await handleSimilarDestinations(enhancedParams);
+      } else {
+        await onFunctionCall(selectedFunction, enhancedParams);
+      }
     } catch (error) {
       console.error('Function execution failed:', error);
     } finally {
       setIsExecuting(false);
+    }
+  };
+
+  const handleSimilarDestinations = async (params) => {
+    try {
+      const response = await fetch('http://localhost:5000/similar-destinations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          query: params.currentDestination || params.destination || 'travel destination',
+          topK: 5
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const results = data.results || [];
+        
+        const message = `Similar destinations found:\n\n${results.map((r, i) => 
+          `${i + 1}. ${r.item.name} (${Math.round(r.score * 100)}% match)\n   ${r.item.summary}`
+        ).join('\n\n')}`;
+        
+        alert(message);
+      } else {
+        alert('Failed to find similar destinations');
+      }
+    } catch (error) {
+      console.error('Error finding similar destinations:', error);
+      alert('Error finding similar destinations');
     }
   };
 

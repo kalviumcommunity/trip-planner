@@ -2,6 +2,9 @@ import express from 'express';
 import dotenv from 'dotenv';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import cors from 'cors';
+import { DestinationSimilarityService } from './src/similarity/destinations.js';
+import { PlanEvaluator } from './src/evaluation/plan-evaluator.js';
+import { addPlan, readPlans } from './src/utils/storage.js';
 
 dotenv.config();
 const app = express();
@@ -9,6 +12,8 @@ app.use(cors());
 app.use(express.json());
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
+const similarityService = new DestinationSimilarityService({ apiKey: process.env.GOOGLE_API_KEY });
+const evaluator = new PlanEvaluator(process.env.GOOGLE_API_KEY);
 
 app.post('/generate-plan', async (req, res) => {
   try {
@@ -109,6 +114,56 @@ Now create a ${days}-day trip plan for ${destination} for someone interested in 
   }
 });
 
+// Save plan
+app.post('/plans', async (req, res) => {
+  try {
+    const { destination, startDate, endDate, days, interests, plan } = req.body || {};
+    if (!destination || !plan) return res.status(400).json({ error: 'destination and plan are required' });
+    const saved = await addPlan({ id: Date.now().toString(), destination, startDate, endDate, days, interests, plan, createdAt: new Date().toISOString() });
+    res.status(201).json({ plan: saved });
+  } catch (error) {
+    console.error('Error saving plan:', error);
+    res.status(500).json({ error: 'Failed to save plan' });
+  }
+});
+
+// List plans
+app.get('/plans', async (_req, res) => {
+  try {
+    const plans = await readPlans();
+    res.json({ plans });
+  } catch (error) {
+    console.error('Error reading plans:', error);
+    res.status(500).json({ error: 'Failed to read plans' });
+  }
+});
+
+// New: evaluate a generated plan
+app.post('/evaluate-plan', async (req, res) => {
+  try {
+    const { planText, context } = req.body || {};
+    if (!planText) return res.status(400).json({ error: 'planText is required' });
+    const result = await evaluator.evaluate(planText, context);
+    res.json(result);
+  } catch (error) {
+    console.error('Error evaluating plan:', error);
+    res.status(500).json({ error: 'Failed to evaluate plan' });
+  }
+});
+
+// New: find similar destinations via embeddings
+app.post('/similar-destinations', async (req, res) => {
+  try {
+    const { query, topK } = req.body || {};
+    if (!query) return res.status(400).json({ error: 'query is required' });
+    const results = await similarityService.findSimilar({ query, topK });
+    res.json({ results });
+  } catch (error) {
+    console.error('Error finding similar destinations:', error);
+    res.status(500).json({ error: 'Failed to find similar destinations' });
+  }
+});
+
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.json({ 
@@ -122,5 +177,9 @@ app.listen(5000, () => {
   console.log('🚀 Backend server running on port 5000');
   console.log('📍 Health check: http://localhost:5000/health');
   console.log('🎯 Generate plan (POST): http://localhost:5000/generate-plan');
+  console.log('💾 Save plan (POST): http://localhost:5000/plans');
+  console.log('📚 List plans (GET): http://localhost:5000/plans');
+  console.log('🧪 Evaluate plan (POST): http://localhost:5000/evaluate-plan');
+  console.log('🔎 Similar destinations (POST): http://localhost:5000/similar-destinations');
   console.log('✨ Using one-shot prompting for consistent trip plan formatting');
 });
