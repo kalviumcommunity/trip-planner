@@ -18,6 +18,7 @@ function App() {
   };
 
   const handleSave = async () => {
+<<<<<<< HEAD
     if (!tripData) return;
     try {
       const response = await fetch("http://localhost:5000/plans", {
@@ -38,6 +39,28 @@ function App() {
       alert("Error saving plan");
     }
   };
+=======
+    if (!tripData) return
+    try {
+      const response = await fetch('http://localhost:5000/plans', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(tripData)
+      })
+      if (response.ok) {
+        const data = await response.json()
+        console.log('Saved plan:', data)
+        alert('Trip plan saved!')
+      } else {
+        const err = await response.json().catch(() => ({}))
+        alert(err.error || 'Failed to save plan')
+      }
+    } catch (e) {
+      console.error(e)
+      alert('Error saving plan')
+    }
+  }
+>>>>>>> 8db6be0fd89db8b6a06e54a94bbe8aaef3d1b4fa
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4">
