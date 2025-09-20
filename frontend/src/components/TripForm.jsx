@@ -1,20 +1,22 @@
-import React, { useState } from 'react';
-import { INTEREST_OPTIONS } from '../constants/interests';
-import AISettings from './AISettings';
+import React, { useState } from "react";
+import { INTEREST_OPTIONS } from "../constants/interests";
+import AISettings from "./AISettings";
 
-const TripForm = ({ onSubmit }) => {
-  const [destination, setDestination] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [interests, setInterests] = useState([]);
+const TripForm = ({ onSubmit, initialData }) => {
+  const [destination, setDestination] = useState(
+    initialData?.destination || ""
+  );
+  const [startDate, setStartDate] = useState(initialData?.startDate || "");
+  const [endDate, setEndDate] = useState(initialData?.endDate || "");
+  const [interests, setInterests] = useState(initialData?.interests || []);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [aiSettings, setAiSettings] = useState({
     temperature: 0.7,
     topK: 40,
     topP: 0.8,
     maxTokens: 1000,
-    promptingMethod: 'one-shot'
+    promptingMethod: "one-shot",
   });
 
   const toggleInterest = (id) => {
@@ -28,25 +30,27 @@ const TripForm = ({ onSubmit }) => {
     const start = new Date(startDate);
     const end = new Date(endDate);
     const diffTime = end - start;
-    return diffTime > 0 ? Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1 : null;
+    return diffTime > 0
+      ? Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1
+      : null;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
 
     const days = calculateDays();
     if (!days) {
-      setError('Please select valid start and end dates.');
+      setError("Please select valid start and end dates.");
       setLoading(false);
       return;
     }
 
     try {
-      const response = await fetch('http://localhost:5000/generate-plan', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("http://localhost:5000/generate-plan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           destination,
           days,
@@ -66,11 +70,11 @@ const TripForm = ({ onSubmit }) => {
           plan: data.plan,
         });
       } else {
-        setError(data.error || 'Failed to generate plan.');
+        setError(data.error || "Failed to generate plan.");
       }
     } catch (err) {
-      setError('Error connecting to server.');
-      console.log(err)
+      setError("Error connecting to server.");
+      console.log(err);
     } finally {
       setLoading(false);
     }
@@ -137,8 +141,8 @@ const TripForm = ({ onSubmit }) => {
               onClick={() => toggleInterest(option.id)}
               className={`px-4 py-2 rounded-full text-sm font-medium border transition-colors duration-200 ${
                 interests.includes(option.id)
-                  ? 'bg-purple-600 text-white border-purple-600'
-                  : 'bg-purple-50 text-purple-800 border-purple-200 hover:bg-purple-100'
+                  ? "bg-purple-600 text-white border-purple-600"
+                  : "bg-purple-50 text-purple-800 border-purple-200 hover:bg-purple-100"
               }`}
             >
               {option.icon} {option.label}
@@ -159,7 +163,7 @@ const TripForm = ({ onSubmit }) => {
         disabled={loading}
         className="w-full bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50"
       >
-        {loading ? 'Generating...' : '🚀 Generate Trip Plan'}
+        {loading ? "Generating..." : "🚀 Generate Trip Plan"}
       </button>
     </form>
   );
