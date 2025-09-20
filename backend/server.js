@@ -11,7 +11,7 @@ const app = express();
 // Configure CORS for production
 app.use(cors({
   origin: process.env.NODE_ENV === 'production'
-    ? ['https://your-frontend-url.vercel.app'] // Replace with your Vercel frontend URL
+    ? ['https://heartfelt-panda-2e8cb2.netlify.app/'] 
     : 'http://localhost:5173'
 }));
 app.use(express.json());
