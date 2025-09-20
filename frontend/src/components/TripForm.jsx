@@ -49,33 +49,45 @@ const TripForm = ({ onSubmit, initialData }) => {
     }
 
     try {
+      console.log("Making request to:", `${config.apiBaseUrl}/generate-plan`);
       const response = await fetch(`${config.apiBaseUrl}/generate-plan`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
         body: JSON.stringify({
           destination,
           days,
           interests,
-          aiSettings, // Include AI settings in the request
+          aiSettings,
         }),
       });
 
-      const data = await response.json();
-      if (response.ok) {
-        onSubmit({
-          destination,
-          startDate,
-          endDate,
-          days,
-          interests,
-          plan: data.plan,
-        });
-      } else {
-        setError(data.error || "Failed to generate plan.");
+      console.log("Response status:", response.status);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Error response:", errorText);
+        throw new Error(
+          `Server responded with ${response.status}: ${errorText}`
+        );
       }
+
+      const data = await response.json();
+      console.log("Response data:", data);
+
+      onSubmit({
+        destination,
+        startDate,
+        endDate,
+        days,
+        interests,
+        plan: data.plan,
+      });
     } catch (err) {
-      setError("Error connecting to server.");
-      console.log(err);
+      console.error("Detailed error:", err);
+      setError(`Error: ${err.message || "Failed to connect to server"}`);
     } finally {
       setLoading(false);
     }

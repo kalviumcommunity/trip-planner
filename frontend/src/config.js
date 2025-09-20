@@ -1,5 +1,8 @@
 const config = {
-  apiBaseUrl: import.meta.env.VITE_API_URL || 'http://localhost:5000'
+  apiBaseUrl: 'https://trip-planner-dhqi.onrender.com'
 };
+
+// Log the configuration when it's loaded
+console.log('API Base URL:', config.apiBaseUrl);
 
 export default config;
