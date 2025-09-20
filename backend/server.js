@@ -8,7 +8,12 @@ import { addPlan, readPlans } from './src/utils/storage.js';
 
 dotenv.config();
 const app = express();
-app.use(cors());
+// Configure CORS for production
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production'
+    ? ['https://your-frontend-url.vercel.app'] // Replace with your Vercel frontend URL
+    : 'http://localhost:5173'
+}));
 app.use(express.json());
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
@@ -173,13 +178,14 @@ app.get('/health', (req, res) => {
   });
 });
 
-app.listen(5000, () => {
-  console.log('🚀 Backend server running on port 5000');
-  console.log('📍 Health check: http://localhost:5000/health');
-  console.log('🎯 Generate plan (POST): http://localhost:5000/generate-plan');
-  console.log('💾 Save plan (POST): http://localhost:5000/plans');
-  console.log('📚 List plans (GET): http://localhost:5000/plans');
-  console.log('🧪 Evaluate plan (POST): http://localhost:5000/evaluate-plan');
-  console.log('🔎 Similar destinations (POST): http://localhost:5000/similar-destinations');
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`🚀 Backend server running on port ${PORT}`);
+  console.log(`📍 Health check: http://localhost:${PORT}/health`);
+  console.log(`🎯 Generate plan (POST): http://localhost:${PORT}/generate-plan`);
+  console.log(`💾 Save plan (POST): http://localhost:${PORT}/plans`);
+  console.log(`📚 List plans (GET): http://localhost:${PORT}/plans`);
+  console.log(`🧪 Evaluate plan (POST): http://localhost:${PORT}/evaluate-plan`);
+  console.log(`🔎 Similar destinations (POST): http://localhost:${PORT}/similar-destinations`);
   console.log('✨ Using one-shot prompting for consistent trip plan formatting');
 });
