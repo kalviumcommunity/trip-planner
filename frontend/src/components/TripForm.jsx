@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { INTEREST_OPTIONS } from "../constants/interests";
 import AISettings from "./AISettings";
+import config from "../config";
 
 const TripForm = ({ onSubmit, initialData }) => {
   const [destination, setDestination] = useState(
@@ -48,7 +49,7 @@ const TripForm = ({ onSubmit, initialData }) => {
     }
 
     try {
-      const response = await fetch("http://localhost:5000/generate-plan", {
+      const response = await fetch(`${config.apiBaseUrl}/generate-plan`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
