@@ -22,6 +22,23 @@ const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 const similarityService = new DestinationSimilarityService({ apiKey: process.env.GOOGLE_API_KEY });
 const evaluator = new PlanEvaluator(process.env.GOOGLE_API_KEY);
 
+// Root route
+app.get('/', (req, res) => {
+  res.json({
+    message: 'Welcome to Trip Planner API',
+    endpoints: {
+      health: 'GET /health',
+      generatePlan: 'POST /generate-plan',
+      plans: {
+        save: 'POST /plans',
+        list: 'GET /plans'
+      },
+      evaluatePlan: 'POST /evaluate-plan',
+      similarDestinations: 'POST /similar-destinations'
+    }
+  });
+});
+
 app.post('/generate-plan', async (req, res) => {
   try {
     const { destination, days, interests } = req.body;
