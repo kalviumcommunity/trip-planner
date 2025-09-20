@@ -1,5 +1,7 @@
 **Deploy Links**
+
 Frontend - " **https://heartfelt-panda-2e8cb2.netlify.app/** "
+
 Backend - " **https://trip-planner-dhqi.onrender.com** "
 
 # 🚀 AI-Powered Trip Planner
