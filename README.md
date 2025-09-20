@@ -1,3 +1,7 @@
+**Deploy Links**
+Frontend - " **https://heartfelt-panda-2e8cb2.netlify.app/** "
+Backend - " **https://trip-planner-dhqi.onrender.com** "
+
 # 🚀 AI-Powered Trip Planner
 
 An intelligent travel planning application that leverages advanced AI prompting techniques to create personalized, detailed trip itineraries.
