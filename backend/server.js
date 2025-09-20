@@ -11,8 +11,10 @@ const app = express();
 // Configure CORS for production
 app.use(cors({
   origin: process.env.NODE_ENV === 'production'
-    ? ['https://heartfelt-panda-2e8cb2.netlify.app/'] 
-    : 'http://localhost:5173'
+    ? ['https://heartfelt-panda-2e8cb2.netlify.app', 'https://heartfelt-panda-2e8cb2.netlify.app'] 
+    : 'http://localhost:5173',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  credentials: true
 }));
 app.use(express.json());
 
