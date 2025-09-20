@@ -2,6 +2,7 @@ import { useState } from "react";
 import Header from "./components/Header";
 import TripForm from "./components/TripForm";
 import TripResults from "./components/TripResults";
+import config from "./config";
 import "./App.css";
 
 function App() {
@@ -20,22 +21,32 @@ function App() {
   const handleSave = async () => {
     if (!tripData) return;
     try {
-      const response = await fetch("http://localhost:5000/plans", {
+      console.log("Saving plan to:", `${config.apiBaseUrl}/plans`);
+      const response = await fetch(`${config.apiBaseUrl}/plans`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
         body: JSON.stringify(tripData),
       });
+
+      console.log("Save response status:", response.status);
+
       if (response.ok) {
         const data = await response.json();
         console.log("Saved plan:", data);
-        alert("Trip plan saved!");
+        alert("Trip plan saved successfully!");
       } else {
-        const err = await response.json().catch(() => ({}));
-        alert(err.error || "Failed to save plan");
+        const errorText = await response.text();
+        console.error("Error response:", errorText);
+        throw new Error(
+          `Server responded with ${response.status}: ${errorText}`
+        );
       }
     } catch (e) {
-      console.error(e);
-      alert("Error saving plan");
+      console.error("Save error:", e);
+      alert(`Error saving plan: ${e.message}`);
     }
   };
 

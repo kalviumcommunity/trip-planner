@@ -1,92 +1,93 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import config from "../config";
 
 const AIFunctionCaller = ({ tripData, onFunctionCall }) => {
-  const [selectedFunction, setSelectedFunction] = useState('');
+  const [selectedFunction, setSelectedFunction] = useState("");
   const [functionParams, setFunctionParams] = useState({});
   const [isExecuting, setIsExecuting] = useState(false);
 
   const availableFunctions = [
     {
-      id: 'bookRestaurant',
-      name: 'Book Restaurant',
-      description: 'Get booking information and availability for restaurants',
-      icon: '🍽️',
+      id: "bookRestaurant",
+      name: "Book Restaurant",
+      description: "Get booking information and availability for restaurants",
+      icon: "🍽️",
       params: {
-        restaurant: '',
-        date: '',
-        time: '',
-        guests: 2
-      }
+        restaurant: "",
+        date: "",
+        time: "",
+        guests: 2,
+      },
     },
     {
-      id: 'getWeather',
-      name: 'Check Weather',
-      description: 'Get weather forecast for your destination',
-      icon: '🌤️',
+      id: "getWeather",
+      name: "Check Weather",
+      description: "Get weather forecast for your destination",
+      icon: "🌤️",
       params: {
-        location: '',
-        date: ''
-      }
+        location: "",
+        date: "",
+      },
     },
     {
-      id: 'calculateBudget',
-      name: 'Calculate Budget',
-      description: 'Calculate detailed budget breakdown for your trip',
-      icon: '💰',
+      id: "calculateBudget",
+      name: "Calculate Budget",
+      description: "Calculate detailed budget breakdown for your trip",
+      icon: "💰",
       params: {
         duration: 3,
-        accommodationType: 'hotel',
-        foodPreference: 'mixed',
-        activityLevel: 'moderate'
-      }
+        accommodationType: "hotel",
+        foodPreference: "mixed",
+        activityLevel: "moderate",
+      },
     },
     {
-      id: 'findSimilarDestinations',
-      name: 'Find Similar Places',
-      description: 'Discover destinations similar to your current choice',
-      icon: '🌍',
+      id: "findSimilarDestinations",
+      name: "Find Similar Places",
+      description: "Discover destinations similar to your current choice",
+      icon: "🌍",
       params: {
-        currentDestination: '',
+        currentDestination: "",
         interests: [],
-        budget: 'medium'
-      }
+        budget: "medium",
+      },
     },
     {
-      id: 'getLocalInsights',
-      name: 'Local Insights',
-      description: 'Get insider tips and local knowledge',
-      icon: '🤫',
+      id: "getLocalInsights",
+      name: "Local Insights",
+      description: "Get insider tips and local knowledge",
+      icon: "🤫",
       params: {
-        destination: '',
-        category: 'food' // food, culture, nightlife, shopping
-      }
+        destination: "",
+        category: "food", // food, culture, nightlife, shopping
+      },
     },
     {
-      id: 'optimizeItinerary',
-      name: 'Optimize Itinerary',
-      description: 'Optimize your schedule for better efficiency',
-      icon: '⚡',
+      id: "optimizeItinerary",
+      name: "Optimize Itinerary",
+      description: "Optimize your schedule for better efficiency",
+      icon: "⚡",
       params: {
         currentPlan: {},
         preferences: {
           earlyBird: false,
           nightOwl: false,
-          relaxed: true
-        }
-      }
-    }
+          relaxed: true,
+        },
+      },
+    },
   ];
 
   const handleFunctionSelect = (functionId) => {
-    const func = availableFunctions.find(f => f.id === functionId);
+    const func = availableFunctions.find((f) => f.id === functionId);
     setSelectedFunction(functionId);
     setFunctionParams(func.params);
   };
 
   const handleParamChange = (key, value) => {
-    setFunctionParams(prev => ({
+    setFunctionParams((prev) => ({
       ...prev,
-      [key]: value
+      [key]: value,
     }));
   };
 
@@ -99,20 +100,22 @@ const AIFunctionCaller = ({ tripData, onFunctionCall }) => {
       const enhancedParams = {
         ...functionParams,
         ...(tripData?.destination && { location: tripData.destination }),
-        ...(tripData?.destination && { currentDestination: tripData.destination }),
+        ...(tripData?.destination && {
+          currentDestination: tripData.destination,
+        }),
         ...(tripData?.destination && { destination: tripData.destination }),
         ...(tripData?.interests && { interests: tripData.interests }),
-        ...(tripData?.days && { duration: tripData.days })
+        ...(tripData?.days && { duration: tripData.days }),
       };
 
       // Handle specific functions that need backend calls
-      if (selectedFunction === 'findSimilarDestinations') {
+      if (selectedFunction === "findSimilarDestinations") {
         await handleSimilarDestinations(enhancedParams);
       } else {
         await onFunctionCall(selectedFunction, enhancedParams);
       }
     } catch (error) {
-      console.error('Function execution failed:', error);
+      console.error("Function execution failed:", error);
     } finally {
       setIsExecuting(false);
     }
@@ -120,69 +123,95 @@ const AIFunctionCaller = ({ tripData, onFunctionCall }) => {
 
   const handleSimilarDestinations = async (params) => {
     try {
-      const response = await fetch('http://localhost:5000/similar-destinations', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          query: params.currentDestination || params.destination || 'travel destination',
-          topK: 5
-        })
-      });
+      const response = await fetch(
+        `${config.apiBaseUrl}/similar-destinations`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            query:
+              params.currentDestination ||
+              params.destination ||
+              "travel destination",
+            topK: 5,
+          }),
+        }
+      );
 
       if (response.ok) {
         const data = await response.json();
         const results = data.results || [];
-        
-        const message = `Similar destinations found:\n\n${results.map((r, i) => 
-          `${i + 1}. ${r.item.name} (${Math.round(r.score * 100)}% match)\n   ${r.item.summary}`
-        ).join('\n\n')}`;
-        
+
+        const message = `Similar destinations found:\n\n${results
+          .map(
+            (r, i) =>
+              `${i + 1}. ${r.item.name} (${Math.round(
+                r.score * 100
+              )}% match)\n   ${r.item.summary}`
+          )
+          .join("\n\n")}`;
+
         alert(message);
       } else {
-        alert('Failed to find similar destinations');
+        alert("Failed to find similar destinations");
       }
     } catch (error) {
-      console.error('Error finding similar destinations:', error);
-      alert('Error finding similar destinations');
+      console.error("Error finding similar destinations:", error);
+      alert("Error finding similar destinations");
     }
   };
 
   const renderParamInputs = () => {
     if (!selectedFunction) return null;
 
-    const func = availableFunctions.find(f => f.id === selectedFunction);
+    const func = availableFunctions.find((f) => f.id === selectedFunction);
     if (!func) return null;
 
     return (
       <div className="bg-gray-50 rounded-lg p-4 mb-4">
-        <h4 className="font-semibold text-gray-800 mb-3">Function Parameters</h4>
+        <h4 className="font-semibold text-gray-800 mb-3">
+          Function Parameters
+        </h4>
         <div className="space-y-3">
           {Object.entries(func.params).map(([key, defaultValue]) => (
             <div key={key}>
               <label className="block text-sm font-medium text-gray-700 mb-1 capitalize">
-                {key.replace(/([A-Z])/g, ' $1').trim()}:
+                {key.replace(/([A-Z])/g, " $1").trim()}:
               </label>
-              {typeof defaultValue === 'boolean' ? (
+              {typeof defaultValue === "boolean" ? (
                 <select
                   value={functionParams[key] || defaultValue}
-                  onChange={(e) => handleParamChange(key, e.target.value === 'true')}
+                  onChange={(e) =>
+                    handleParamChange(key, e.target.value === "true")
+                  }
                   className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
                 >
                   <option value={true}>Yes</option>
                   <option value={false}>No</option>
                 </select>
-              ) : typeof defaultValue === 'number' ? (
+              ) : typeof defaultValue === "number" ? (
                 <input
                   type="number"
                   value={functionParams[key] || defaultValue}
-                  onChange={(e) => handleParamChange(key, parseInt(e.target.value))}
+                  onChange={(e) =>
+                    handleParamChange(key, parseInt(e.target.value))
+                  }
                   className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
                 />
               ) : Array.isArray(defaultValue) ? (
                 <input
                   type="text"
-                  value={Array.isArray(functionParams[key]) ? functionParams[key].join(', ') : ''}
-                  onChange={(e) => handleParamChange(key, e.target.value.split(',').map(s => s.trim()))}
+                  value={
+                    Array.isArray(functionParams[key])
+                      ? functionParams[key].join(", ")
+                      : ""
+                  }
+                  onChange={(e) =>
+                    handleParamChange(
+                      key,
+                      e.target.value.split(",").map((s) => s.trim())
+                    )
+                  }
                   placeholder="Enter values separated by commas"
                   className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
                 />
@@ -222,8 +251,8 @@ const AIFunctionCaller = ({ tripData, onFunctionCall }) => {
               onClick={() => handleFunctionSelect(func.id)}
               className={`p-3 text-left rounded-lg border transition-colors ${
                 selectedFunction === func.id
-                  ? 'border-blue-500 bg-blue-50 text-blue-800'
-                  : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                  ? "border-blue-500 bg-blue-50 text-blue-800"
+                  : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
               }`}
             >
               <div className="flex items-center mb-2">
@@ -247,20 +276,38 @@ const AIFunctionCaller = ({ tripData, onFunctionCall }) => {
             disabled={isExecuting}
             className={`px-6 py-3 rounded-lg font-semibold transition-colors ${
               isExecuting
-                ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-blue-600 hover:bg-blue-700 text-white'
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700 text-white"
             }`}
           >
             {isExecuting ? (
               <span className="flex items-center">
-                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                <svg
+                  className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
                 </svg>
                 Executing...
               </span>
             ) : (
-              `Execute ${availableFunctions.find(f => f.id === selectedFunction)?.name}`
+              `Execute ${
+                availableFunctions.find((f) => f.id === selectedFunction)?.name
+              }`
             )}
           </button>
         </div>
@@ -270,9 +317,10 @@ const AIFunctionCaller = ({ tripData, onFunctionCall }) => {
       <div className="mt-6 p-4 bg-blue-50 rounded-lg">
         <h4 className="font-semibold text-blue-800 mb-2">How It Works</h4>
         <p className="text-blue-700 text-sm">
-          AI Function Calling allows the AI to execute specific tasks like checking weather, 
-          calculating budgets, or finding similar destinations. The AI will process your request 
-          and provide actionable results that enhance your trip planning experience.
+          AI Function Calling allows the AI to execute specific tasks like
+          checking weather, calculating budgets, or finding similar
+          destinations. The AI will process your request and provide actionable
+          results that enhance your trip planning experience.
         </p>
       </div>
     </div>
