@@ -1,6 +1,6 @@
 const config = {
   apiBaseUrl: process.env.NODE_ENV === 'production'
-    ? 'YOUR_RENDER_URL' // You'll replace this with your Render.com backend URL
+    ? 'https://trip-planner-dhqi.onrender.com' 
     : 'http://localhost:5000'
 };
 
