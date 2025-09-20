@@ -17,10 +17,26 @@ function App() {
     setShowResults(false)
   }
 
-  const handleSave = () => {
-    // TODO: Implement save functionality
-    console.log('Saving trip plan:', tripData)
-    alert('Trip plan saved! (Backend integration pending)')
+  const handleSave = async () => {
+    if (!tripData) return
+    try {
+      const response = await fetch('http://localhost:5000/plans', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(tripData)
+      })
+      if (response.ok) {
+        const data = await response.json()
+        console.log('Saved plan:', data)
+        alert('Trip plan saved!')
+      } else {
+        const err = await response.json().catch(() => ({}))
+        alert(err.error || 'Failed to save plan')
+      }
+    } catch (e) {
+      console.error(e)
+      alert('Error saving plan')
+    }
   }
 
   return (
